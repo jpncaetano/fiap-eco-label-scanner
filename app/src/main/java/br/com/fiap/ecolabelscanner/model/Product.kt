@@ -12,5 +12,6 @@ data class Product(
     @SerializedName("additives_tags") val additives: List<String>?,
     @SerializedName("allergens") val allergens: String?,
     @SerializedName("origins") val origins: String?,
-    @SerializedName("image_url") val imageUrl: String?
+    @SerializedName("image_url") val imageUrl: String?,
+    @SerializedName("nutriments") val nutriments: Nutriments?
 )
