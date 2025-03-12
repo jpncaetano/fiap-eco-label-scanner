@@ -6,8 +6,6 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface OpenFoodFactsApiService {
-    @GET("cgi/search.pl?search_simple=1&json=1")
-    fun searchProductByName(
-        @Query("search_terms") name: String
-    ): Call<ProductSearchResponse>
+    @GET("cgi/search.pl?search_simple=1&action=process&json=1")
+    fun searchProductByName(@Query("search_terms") productName: String): Call<ProductSearchResponse>
 }
