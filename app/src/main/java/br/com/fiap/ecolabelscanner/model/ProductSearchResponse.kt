@@ -1,5 +1,9 @@
 package br.com.fiap.ecolabelscanner.model
 
+import com.google.gson.annotations.SerializedName
+
 data class ProductSearchResponse(
-    val products: List<Product>?
+    @SerializedName("products") val products: List<Product>? = null,
+    @SerializedName("product") val product: Product? = null
 )
+

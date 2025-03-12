@@ -1,5 +1,6 @@
 package br.com.fiap.ecolabelscanner.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.fiap.ecolabelscanner.model.Product
@@ -11,32 +12,40 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class ProductViewModel : ViewModel() {
-
-    var products: List<Product>? = null
-    var errorMessage: String? = null
-
-    fun searchProduct(name: String, onResult: (List<Product>?) -> Unit) {
+    fun searchProduct(query: String, onResult: (List<Product>) -> Unit) {
         viewModelScope.launch {
-            val call = RetrofitInstance.api.searchProductByName(name)
+            val call: Call<ProductSearchResponse> = if (query.all { it.isDigit() }) {
+                RetrofitInstance.api.searchProductByBarcode(query) // Busca por código de barras
+            } else {
+                RetrofitInstance.api.searchProductByName(query) // Busca por nome
+            }
+
             call.enqueue(object : Callback<ProductSearchResponse> {
                 override fun onResponse(
                     call: Call<ProductSearchResponse>,
                     response: Response<ProductSearchResponse>
                 ) {
                     if (response.isSuccessful) {
-                        products = response.body()?.products
+                        val body = response.body()
+                        val products = when {
+                            body?.products != null -> body.products
+                            body?.product != null -> listOf(body.product)
+                            else -> emptyList()
+                        }
+                        Log.d("API_RESPONSE", "Produtos retornados: $products")
                         onResult(products)
                     } else {
-                        errorMessage = "Erro ao buscar produto"
-                        onResult(null)
+                        Log.e("API_ERROR", "Erro na requisição: ${response.errorBody()?.string()}")
+                        onResult(emptyList())
                     }
                 }
 
                 override fun onFailure(call: Call<ProductSearchResponse>, t: Throwable) {
-                    errorMessage = t.message
-                    onResult(null)
+                    Log.e("API_ERROR", "Erro na conexão: ${t.message}")
+                    onResult(emptyList())
                 }
             })
         }
     }
 }
+
