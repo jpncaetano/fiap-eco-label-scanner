@@ -12,10 +12,13 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class ProductViewModel : ViewModel() {
-
-    fun searchProduct(productName: String, onResult: (List<Product>) -> Unit) {
+    fun searchProduct(query: String, onResult: (List<Product>) -> Unit) {
         viewModelScope.launch {
-            val call = RetrofitInstance.api.searchProductByName(productName)
+            val call: Call<ProductSearchResponse> = if (query.all { it.isDigit() }) {
+                RetrofitInstance.api.searchProductByBarcode(query) // Busca por código de barras
+            } else {
+                RetrofitInstance.api.searchProductByName(query) // Busca por nome
+            }
 
             call.enqueue(object : Callback<ProductSearchResponse> {
                 override fun onResponse(
@@ -23,7 +26,12 @@ class ProductViewModel : ViewModel() {
                     response: Response<ProductSearchResponse>
                 ) {
                     if (response.isSuccessful) {
-                        val products = response.body()?.products ?: emptyList()
+                        val body = response.body()
+                        val products = when {
+                            body?.products != null -> body.products
+                            body?.product != null -> listOf(body.product)
+                            else -> emptyList()
+                        }
                         Log.d("API_RESPONSE", "Produtos retornados: $products")
                         onResult(products)
                     } else {
@@ -40,3 +48,4 @@ class ProductViewModel : ViewModel() {
         }
     }
 }
+

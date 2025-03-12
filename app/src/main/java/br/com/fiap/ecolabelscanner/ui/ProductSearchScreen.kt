@@ -17,9 +17,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import br.com.fiap.ecolabelscanner.model.Product
-import br.com.fiap.ecolabelscanner.viewmodel.ProductViewModel
-import androidx.compose.ui.draw.clip
+import br.com.fiap.ecolabelscanner.viewmodel.*
 
+import androidx.compose.ui.draw.clip
 
 @Composable
 fun ProductSearchScreen(viewModel: ProductViewModel = ProductViewModel()) {
@@ -27,6 +27,7 @@ fun ProductSearchScreen(viewModel: ProductViewModel = ProductViewModel()) {
     var products by remember { mutableStateOf<List<Product>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var selectedProduct by remember { mutableStateOf<Product?>(null) }
+    var hasSearched by remember { mutableStateOf(false) } // Estado para rastrear se já houve busca
 
     // Se um produto for selecionado, exibe a tela de detalhes
     if (selectedProduct != null) {
@@ -38,16 +39,28 @@ fun ProductSearchScreen(viewModel: ProductViewModel = ProductViewModel()) {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("Digite o nome do produto") },
+                label = { Text("Digite o nome do produto ou o código de barras") },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Button(
                 onClick = {
-                    isLoading = true
-                    viewModel.searchProduct(searchQuery) { result ->
-                        products = result
-                        isLoading = false
+                    if (searchQuery.isNotBlank()) { // Evita busca vazia
+                        hasSearched = true
+                        isLoading = true
+
+                        // Verifica se a entrada contém apenas números (é um código de barras)
+                        if (searchQuery.all { it.isDigit() }) {
+                            viewModel.searchProduct(searchQuery) { result ->
+                                products = result
+                                isLoading = false
+                            }
+                        } else {
+                            viewModel.searchProduct(searchQuery) { result ->
+                                products = result
+                                isLoading = false
+                            }
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
@@ -59,8 +72,8 @@ fun ProductSearchScreen(viewModel: ProductViewModel = ProductViewModel()) {
                 }
             }
 
-            // Se não houver resultados e não estiver carregando, exibir mensagem de erro
-            if (products.isEmpty() && !isLoading) {
+            // Se a busca já foi feita e não houver resultados, exibir mensagem de erro
+            if (hasSearched && products.isEmpty() && !isLoading) {
                 Text(
                     text = "Nenhum produto encontrado. Tente novamente!",
                     color = Color.Red,
