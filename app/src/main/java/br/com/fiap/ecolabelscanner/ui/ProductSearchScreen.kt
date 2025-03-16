@@ -10,82 +10,72 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
+import androidx.navigation.NavController
 import br.com.fiap.ecolabelscanner.model.Product
-import br.com.fiap.ecolabelscanner.viewmodel.*
-
-import androidx.compose.ui.draw.clip
+import br.com.fiap.ecolabelscanner.viewmodel.ProductViewModel
+import br.com.fiap.ecolabelscanner.navigation.Screen
+import com.google.gson.Gson
+import android.net.Uri
 
 @Composable
-fun ProductSearchScreen(viewModel: ProductViewModel = ProductViewModel()) {
+fun ProductSearchScreen(
+    viewModel: ProductViewModel = ProductViewModel(),
+    navController: NavController
+) {
     var searchQuery by remember { mutableStateOf("") }
     var products by remember { mutableStateOf<List<Product>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
-    var selectedProduct by remember { mutableStateOf<Product?>(null) }
-    var hasSearched by remember { mutableStateOf(false) } // Estado para rastrear se já houve busca
+    var hasSearched by remember { mutableStateOf(false) }
 
-    // Se um produto for selecionado, exibe a tela de detalhes
-    if (selectedProduct != null) {
-        ProductDetailScreen(product = selectedProduct!!) {
-            selectedProduct = null
-        }
-    } else {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                label = { Text("Digite o nome do produto ou o código de barras") },
-                modifier = Modifier.fillMaxWidth()
-            )
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text("Digite o nome do produto ou o código de barras") },
+            modifier = Modifier.fillMaxWidth()
+        )
 
-            Button(
-                onClick = {
-                    if (searchQuery.isNotBlank()) { // Evita busca vazia
-                        hasSearched = true
-                        isLoading = true
-
-                        // Verifica se a entrada contém apenas números (é um código de barras)
-                        if (searchQuery.all { it.isDigit() }) {
-                            viewModel.searchProduct(searchQuery) { result ->
-                                products = result
-                                isLoading = false
-                            }
-                        } else {
-                            viewModel.searchProduct(searchQuery) { result ->
-                                products = result
-                                isLoading = false
-                            }
-                        }
+        Button(
+            onClick = {
+                if (searchQuery.isNotBlank()) {
+                    hasSearched = true
+                    isLoading = true
+                    viewModel.searchProduct(searchQuery) { result ->
+                        products = result
+                        isLoading = false
                     }
-                },
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
-                } else {
-                    Text("Buscar")
                 }
+            },
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
+            } else {
+                Text("Buscar")
             }
+        }
 
-            // Se a busca já foi feita e não houver resultados, exibir mensagem de erro
-            if (hasSearched && products.isEmpty() && !isLoading) {
-                Text(
-                    text = "Nenhum produto encontrado. Tente novamente!",
-                    color = Color.Red,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-            }
+        if (hasSearched && products.isEmpty() && !isLoading) {
+            Text(
+                text = "Nenhum produto encontrado. Tente novamente!",
+                color = Color.Red,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        }
 
-            // Exibir lista de produtos encontrados
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 16.dp)) {
-                items(products) { product ->
-                    ProductItem(product) { selectedProduct = it }
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 16.dp)) {
+            items(products) { product ->
+                ProductItem(product) {
+                    val productJson = Uri.encode(Gson().toJson(product)) // Codifica o JSON corretamente
+                    navController.navigate(Screen.Detail.createRoute(productJson))
                 }
             }
         }
@@ -93,15 +83,15 @@ fun ProductSearchScreen(viewModel: ProductViewModel = ProductViewModel()) {
 }
 
 @Composable
-fun ProductItem(product: Product, onClick: (Product) -> Unit) {
+fun ProductItem(product: Product, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF3E5F5)), // Fundo lilás claro
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF3E5F5)),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onClick(product) }
+            .clickable { onClick() }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
