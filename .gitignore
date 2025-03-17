@@ -1,15 +1,72 @@
+# Diretórios de build e binários
+/build/
+.gradle/
+.idea/
+out/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+
+# Arquivos do Gradle
+.gradle/
+**/build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+**/gradlew
+**/gradlew.bat
+**/gradle-wrapper.jar
+**/gradle-wrapper.properties
+**/settings.gradle
+**/settings.gradle.kts
+**/gradle.properties
+
+# Arquivos do Android Studio
+.idea/
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
 *.iml
-.gradle
+*.ipr
+*.iws
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+/.cxx/
+.externalNativeBuild/
+captures/
+
+# Arquivos temporários do sistema
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
+Thumbs.db
+ehthumbs.db
+Icon?
+*.swp
+*.swo
+*.bak
+*.lock
+hs_err_pid*
+replay_pid*
+
+# Logs e relatórios
+*.log
+crashlytics.properties
+fabric/properties
+
+# Configuração sensível e chaves
+/secrets.properties
+*.jks
+*.key
+*.pem
+*.crt
+*.p12
+
+# Bancos de dados locais e arquivos temporários
+*.sqlite
+*.db
+*.sql
+/data/
+*.csv
+*.tsv
