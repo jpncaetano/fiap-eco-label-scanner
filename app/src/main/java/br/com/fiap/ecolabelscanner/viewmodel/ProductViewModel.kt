@@ -15,9 +15,9 @@ class ProductViewModel : ViewModel() {
     fun searchProduct(query: String, onResult: (List<Product>) -> Unit) {
         viewModelScope.launch {
             val call: Call<ProductSearchResponse> = if (query.all { it.isDigit() }) {
-                RetrofitInstance.api.searchProductByBarcode(query) // Busca por código de barras
+                RetrofitInstance.api.searchProductByBarcode(query)
             } else {
-                RetrofitInstance.api.searchProductByName(query) // Busca por nome
+                RetrofitInstance.api.searchProductByName(query)
             }
 
             call.enqueue(object : Callback<ProductSearchResponse> {

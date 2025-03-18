@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".EcoLabelScannerApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -15,6 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EcoLabelScanner"
         tools:targetApi="31">
+
+        <!-- Define a MainActivity como a tela inicial correta -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -22,10 +25,10 @@
             android:theme="@style/Theme.EcoLabelScanner">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

@@ -14,4 +14,13 @@ data class Product(
     @SerializedName("origins") val origins: String?,
     @SerializedName("image_url") val imageUrl: String?,
     @SerializedName("nutriments") val nutriments: Nutriments?
-)
+) {
+    fun toFavoriteProduct(): FavoriteProduct {
+        return FavoriteProduct(
+            name = productName ?: "Desconhecido",
+            brand = brands ?: "Marca desconhecida",
+            barcode = code ?: ""
+        )
+    }
+}
+
