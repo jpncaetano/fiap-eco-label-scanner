@@ -40,7 +40,7 @@ Ele incentiva práticas sustentáveis, promovendo **transparência** e um consum
 
 ## 🔗 API Utilizada
 O aplicativo consome dados da API **Open Food Facts**, acessível em:  
-🔗 [https://world.openfoodfacts.org/api/v2](https://world.openfoodfacts.org/api/v2)  
+🔗 [Open Food Facts API](https://world.openfoodfacts.org/api/v0/product/{barcode}.json)
 
 A integração foi realizada via **Retrofit**, permitindo requisições seguras e eficientes.
 
